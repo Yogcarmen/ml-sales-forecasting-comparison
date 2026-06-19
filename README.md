@@ -86,5 +86,3 @@ ml-sales-forecasting-comparison/
 └── results/
     └── (generated PNGs)
 ```
-    └── (generated PNGs)
-```
