@@ -39,7 +39,7 @@ Random Forest achieves the lowest test FMSE, outperforming PCR and Lasso by 1.75
 
 ```bash
 # 1. Clone and enter the directory
-git clone https://github.com/yushanluo/ml-sales-forecasting-comparison.git
+git clone https://github.com/Yogcarmen/ml-sales-forecasting-comparison.git
 cd ml-sales-forecasting-comparison
 
 # 2. Install dependencies
