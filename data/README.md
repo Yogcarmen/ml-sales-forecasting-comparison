@@ -1,24 +1,37 @@
 # Data
 
-The dataset (`DS2.xlsx`) is not included in this repository as it was provided
-under course licence restrictions.
+The original dataset (`DS2.xlsx`) is not included in this repository as it was
+provided under course licence restrictions.
 
-## Expected format
+## No data? Use the synthetic panel
 
-Sheet name: `data`
+`src/synthetic.py` generates a panel with the same layout (25 firms, daily
+dates, `y` plus `z1`–`z25`), so every script runs without the licensed file:
+
+```bash
+python scripts/run_pipeline.py --synthetic --fast
+```
+
+The synthetic data-generating process has a factor structure in the
+predictors, persistent firm fixed effects, right-skewed sales, one threshold
+effect and fat-tailed shocks. Its true predictors are known
+(`src.synthetic.true_predictors()`), so it can also be used to check whether
+each model recovers the right signals. Numbers from synthetic runs will not
+match the results reported in the main README.
+
+## Expected format of the original file
+
+Sheet name: `data` (a CSV with the same columns also works)
 
 | Column | Type | Description |
 |---|---|---|
 | `company_id` | string/int | Firm identifier (25 firms) |
-| `date` | date | Observation date |
+| `date` | date | Observation date (1,500 consecutive days) |
 | `y` | float | Current-period sales |
-| `z1` … `z25` | float | Standardised numeric predictors |
+| `z1` … `z25` | float | Numeric predictors |
 
-## Preparing the data file
+Place `DS2.xlsx` in this `data/` directory and run:
 
-Place `DS2.xlsx` in this `data/` directory before running the notebook.
-The loader script (`src/data_loader.py`) will read it with:
-
-```python
-df = pd.read_excel('data/DS2.xlsx', sheet_name='data')
+```bash
+python scripts/run_pipeline.py --data data/DS2.xlsx
 ```

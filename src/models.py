@@ -206,7 +206,22 @@ def train_pcr(train_df, test_df, lasso_result,
 
 # ── Model 3: Random Forest ────────────────────────────────────────────────────
 
-def train_rf(train_df, test_df, tscv):
+FULL_RF_GRID = {
+    'model__n_estimators'    : [100, 200, 300, 500],
+    'model__max_depth'       : [3, 5, 8, 10, None],
+    'model__max_features'    : ['sqrt', 'log2', 0.3, 0.5],
+    'model__min_samples_leaf': [1, 2, 5, 10],
+}
+
+FAST_RF_GRID = {
+    'model__n_estimators'    : [100],
+    'model__max_depth'       : [8, None],
+    'model__max_features'    : [0.3],
+    'model__min_samples_leaf': [1, 5],
+}
+
+
+def train_rf(train_df, test_df, tscv, param_grid=None, verbose=1):
     """
     Fit Random Forest via GridSearchCV (time-aware 5-fold, neg MSE scoring).
 
@@ -217,6 +232,11 @@ def train_rf(train_df, test_df, tscv):
     ----------
     train_df, test_df : pd.DataFrame
     tscv : PanelTimeSeriesCV
+    param_grid : dict, optional
+        Grid for GridSearchCV. Defaults to FULL_RF_GRID (320 combinations);
+        use FAST_RF_GRID for a quick run.
+    verbose : int
+        Passed to GridSearchCV.
 
     Returns
     -------
@@ -237,17 +257,15 @@ def train_rf(train_df, test_df, tscv):
                          ('model', RandomForestRegressor(
                              random_state=RANDOM_STATE, n_jobs=1))])
 
-    param_grid = {
-        'model__n_estimators'    : [100, 200, 300, 500],
-        'model__max_depth'       : [3, 5, 8, 10, None],
-        'model__max_features'    : ['sqrt', 'log2', 0.3, 0.5],
-        'model__min_samples_leaf': [1, 2, 5, 10],
-    }
-    print(f'Grid: {4*5*4*4} combinations × 5 folds = {4*5*4*4*5} fits')
+    if param_grid is None:
+        param_grid = FULL_RF_GRID
+    n_comb = int(np.prod([len(v) for v in param_grid.values()]))
+    n_folds = tscv.get_n_splits()
+    print(f'Grid: {n_comb} combinations × {n_folds} folds = {n_comb * n_folds} fits')
 
     grid_search = GridSearchCV(
         estimator=pipeline, param_grid=param_grid, cv=tscv,
-        scoring='neg_mean_squared_error', refit=True, n_jobs=-1, verbose=1
+        scoring='neg_mean_squared_error', refit=True, n_jobs=-1, verbose=verbose
     )
     grid_search.fit(X_train_raw, y_train)
     best_p = grid_search.best_params_
