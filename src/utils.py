@@ -38,8 +38,11 @@ def fmse(y_true, y_pred):
     return float(np.mean((y_true - y_pred) ** 2))
 
 
-def save_fig(fig, filename):
-    """Save figure to results/ directory at 150 dpi."""
-    fig.savefig(f'results/{filename}', dpi=150, bbox_inches='tight')
+def save_fig(fig, filename, out_dir='results'):
+    """Save figure to ``out_dir`` (created if needed) at 150 dpi."""
+    from pathlib import Path
+    path = Path(out_dir)
+    path.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path / filename, dpi=150, bbox_inches='tight')
     plt.close(fig)
-    print(f'Saved: results/{filename}')
+    print(f'Saved: {path / filename}')
